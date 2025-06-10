@@ -116,3 +116,7 @@ async def login(credentials: UserCredentials):
         )
         
     raise HTTPException(status_code=500, detail="An unknown error has occurred during login.")
+
+@app.get("/")
+def read_root():
+    return {"message": "FastAPI backend is running!"}
