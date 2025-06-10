@@ -1,0 +1,22 @@
+venv/
+.venv/                # Alternative common name for virtual environment
+
+# Python bytecode and build artifacts
+__pycache__/
+*.pyc
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/                # Python build output (can overlap with general /build/)
+
+# Python specific cache and temp files
+.pytest_cache/        # pytest cache directory
+.mypy_cache/          # mypy static analysis cache
+.ipynb_checkpoints/   # Jupyter Notebook checkpoints
+.spyderproject        # Spyder IDE project files
+
+# Database files (if you ever use SQLite temporarily, e.g., for local dev)
+*.db
+*.sqlite3
+.env
