@@ -51,10 +51,12 @@
 # ^^app.py
 
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi.responses import JSONResponse
 from supabase import create_client, Client
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from typing import Annotated
 
 load_dotenv()
 
@@ -117,6 +119,47 @@ async def login(credentials: UserCredentials):
         
     raise HTTPException(status_code=500, detail="An unknown error has occurred during login.")
 
+@app.post('/logout')
+async def logout(authorization: Annotated[str, Header()]):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Invalid authorization scheme")
+    
+    #token = authorization.split(" ")[1]
+    
+    try:
+        return JSONResponse(status_code=200, content={"message" : "User logged out"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Logout error: {e}")
+
 @app.get("/")
 def read_root():
     return {"message": "FastAPI backend is running!"}
+
+async def get_current_user(authorization: Annotated[str, Header()]):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Invalid authorization scheme")
+    
+    token = authorization.split(" ")[1]
+    
+    try:
+        res = supabase.auth.get_user(token)
+        if res.user:
+            return res.user
+        else:
+            raise HTTPException(status_code=401, detail="Invalid or expired token")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Auth error: {e}")
+    
+@app.get("users/me")
+async def get_my_profile(current_user: Annotated[dict, Depends(get_current_user)]):
+    user_id = current_user.id
+    
+    res = supabase.table("profiles").select("*").eq("id", user_id).single().execute()
+    
+    if res.error:
+        raise HTTPException(status_code=500, detail="Could not fetch user profile.")
+    
+    if res.data:
+        return res.data
+    else:
+        raise HTTPException(status_code=404, detail="Profile not found.")
