@@ -152,14 +152,14 @@ async def get_current_user(authorization: Annotated[str, Header()]):
     
 @app.get("/users/me")
 async def get_my_profile(current_user: Annotated[dict, Depends(get_current_user)]):
-    user_id = current_user.id
+    user_id = current_user.id    
     
-    res = supabase.table("profiles").select("*").eq("id", user_id).single().execute()
+    try:
+        res = supabase.table("profiles").select("*").eq("id", user_id).single().execute()
     
-    if res.error:
-        raise HTTPException(status_code=500, detail="Could not fetch user profile.")
-    
-    if res.data:
-        return res.data
-    else:
-        raise HTTPException(status_code=404, detail="Profile not found.")
+        if res.data:
+            return res.data
+        else:
+            raise HTTPException(status_code=404, detail="Profile not found.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not fetch user profile: {e}")
