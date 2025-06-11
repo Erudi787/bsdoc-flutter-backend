@@ -150,7 +150,7 @@ async def get_current_user(authorization: Annotated[str, Header()]):
     except Exception as e:
         raise HTTPException(status_code=401, detail=f"Auth error: {e}")
     
-@app.get("users/me")
+@app.get("/users/me")
 async def get_my_profile(current_user: Annotated[dict, Depends(get_current_user)]):
     user_id = current_user.id
     
