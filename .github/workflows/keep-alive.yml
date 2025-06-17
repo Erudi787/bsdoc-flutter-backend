@@ -1,0 +1,16 @@
+name: Keep Render Alive
+
+on:
+  workflow_dispatch:   # 👈 Enables manual runs
+  schedule:
+    - cron: "*/10 * * * *"
+
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Curl the Render URL
+        run: |
+          curl --silent --show-error --fail https://bsdoc-flutter-backend.onrender.com/
